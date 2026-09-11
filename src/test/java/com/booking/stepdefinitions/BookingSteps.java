@@ -10,6 +10,7 @@ import io.restassured.module.jsv.JsonSchemaValidator;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Assertions;
 
+import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
@@ -44,6 +45,15 @@ public class BookingSteps {
 
     @When("I create a booking with the following details:")
     public void i_create_a_booking_with_the_following_details(DataTable dataTable) {
+        buildAndSendBooking(dataTable);
+    }
+
+    @When("I create a booking with the incorrect requested details:")
+    public void i_create_a_booking_with_the_incorrect_requested_details(DataTable dataTable) {
+        buildAndSendBooking(dataTable);
+    }
+
+    private void buildAndSendBooking(DataTable dataTable) {
         Map<String, String> details = dataTable.asMap(String.class, String.class);
         details.forEach(context::setSessionContext);
 
@@ -102,4 +112,19 @@ public class BookingSteps {
         response.then().assertThat()
                 .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("schemas/booking-schema.json"));
     }
+
+    @Then("the system rejects the booking request due to validation errors")
+    public void the_system_rejects_the_booking_request_due_to_validation_errors() {
+        Assertions.assertEquals(400, response.getStatusCode(), "Unexpected status code");
+    }
+
+    @Then("the validation error message indicates {string}")
+    public void the_validation_error_message_indicates(String expectedMessage) {
+        List<String> errors = response.jsonPath().getList("errors", String.class);
+        Assertions.assertTrue(
+                errors != null && errors.contains(expectedMessage),
+                "Expected error message \"" + expectedMessage + "\" not found. Actual errors: " + errors
+        );
+    }
 }
+
