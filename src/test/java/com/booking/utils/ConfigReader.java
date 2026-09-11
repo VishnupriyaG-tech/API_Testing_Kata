@@ -1,4 +1,4 @@
-package org.example.config;
+package com.booking.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
