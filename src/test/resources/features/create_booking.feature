@@ -8,7 +8,7 @@ Feature: Create a Room Reservation
 
   @smoke @positive
   Scenario: Successfully create a booking with valid guest and stay details
-    Given a room is available for reservation
+    Given a guest wants to reserve a room
     When I create a booking with the following details:
       | firstname   | Vishnu             |
       | lastname    | Priya               |
@@ -25,7 +25,7 @@ Feature: Create a Room Reservation
 
   @regression @positive
   Scenario Outline: Successfully create bookings for guests with different deposit statuses and stay durations
-    Given rooms are available for reservations
+    Given a guest wants to reserve a room
     When I create a booking with the following details:
       | firstname   | <firstname>   |
       | lastname    | <lastname>    |
@@ -46,5 +46,29 @@ Feature: Create a Room Reservation
 
     Examples: Deposit pending
       | firstname | lastname | depositpaid | checkin    | checkout   | email              | phone        |
-      | Ravi      | Kumar    | false        | 2026-10-01 | 2026-10-05 | ravi.kumar@mail.com| 998877665544 |
+      | Ravi      | Kumar    | false       | 2026-10-01 | 2026-10-05 | ravi.kumar@mail.com| 998877665544 |
 
+  @negative @validation
+  Scenario Outline: Fail to create a booking when invalid information are provided
+    Given a guest wants to reserve a room
+    When I create a booking with the incorrect requested details:
+      | firstname   | <firstname>   |
+      | lastname    | <lastname>    |
+      | depositpaid | <depositpaid> |
+      | checkin     | <checkin>     |
+      | checkout    | <checkout>    |
+      | email       | <email>       |
+      | phone       | <phone>       |
+    Then the system rejects the booking request due to validation errors
+    And the validation error message indicates "<errorMessage>"
+
+    Examples:
+      | firstname              | lastname             | email         | phone                   | depositpaid | checkin    | checkout   | errorMessage                             |
+      | Vi                     | Priya                | vp@test.com   | 98764253661             | true        | 2026-09-15 | 2026-09-16 | size must be between 3 and 18            |
+      | Vishnupriyanewtestname | Priya                | vp@test.com   | 987642536623            | true        | 2026-09-15 | 2026-09-17 | size must be between 3 and 18            |
+      | Vishnu                 | Pr                   | pr@test.com   | 98764253663             | true        | 2026-09-16 | 2026-09-17 | size must be between 3 and 18            |
+      | Vishnu                 | Priyatestlastnameerr | pr@test.com   | 98764253663             | true        | 2026-09-16 | 2026-09-17 | size must be between 3 and 18            |
+      | Vishnu                 | priya                | vish@test.com | 987654321               | true        | 2026-09-18 | 2026-09-19 | size must be between 11 and 21           |
+      | Vishnu                 | priya                | vish@test.com | 98765432192839920092838 | false       | 2026-09-18 | 2026-09-19 | size must be between 11 and 21           |
+      | Vishnu                 | priya                | vishtest.com  | 987654321453            | true        | 2026-09-18 | 2026-09-19 | must be a well-formed email address      |
+      | Vishnu                 | priya                | vish@test.com | 987654321450            | false       | 2026-09-18 | 2026-09-17 | Failed to create booking                 |
