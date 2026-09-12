@@ -24,6 +24,15 @@ public class AuthActions {
                 .when()
                 .post(ApiResource.AUTH.getResource());
 
+        int statusCode = response.getStatusCode();
+        if (statusCode != 200) {
+            throw new IllegalStateException(
+                    "Authentication failed for user '" + username + "'. " +
+                            "Expected HTTP 200 but got " + statusCode + ". " +
+                            "Response: " + response.getBody().asString()
+            );
+        }
+
         String token = response.jsonPath().getString("token");
         context.setSessionContext("token", token);
         return token;

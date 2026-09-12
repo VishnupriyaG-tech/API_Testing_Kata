@@ -41,12 +41,8 @@ public class BookingSteps {
     }
 
     @When("I create a booking with the following details:")
-    public void i_create_a_booking_with_the_following_details(DataTable dataTable) {
-        response = BookingActions.createBooking(context, dataTable);
-    }
-
     @When("I create a booking with the incorrect requested details:")
-    public void i_create_a_booking_with_the_incorrect_requested_details(DataTable dataTable) {
+    public void i_create_a_booking_with_the_following_details(DataTable dataTable) {
         response = BookingActions.createBooking(context, dataTable);
     }
 

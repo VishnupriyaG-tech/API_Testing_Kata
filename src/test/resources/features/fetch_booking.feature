@@ -14,8 +14,8 @@ Feature: Retrieve Room Reservation Details
       | firstname   | Vishnu             |
       | lastname    | Priya               |
       | depositpaid | true                 |
-      | checkin     | 2026-09-11           |
-      | checkout    | 2026-09-12           |
+      | checkin     | 2026-10-11           |
+      | checkout    | 2026-10-12           |
       | email       | testnew@gmail.com    |
       | phone       | 987542467800         |
     And the user has logged in with valid credentials
@@ -30,8 +30,8 @@ Feature: Retrieve Room Reservation Details
       | firstname   | Vishnu             |
       | lastname    | Priya               |
       | depositpaid | true                 |
-      | checkin     | 2026-09-11           |
-      | checkout    | 2026-09-12           |
+      | checkin     | 2026-10-11           |
+      | checkout    | 2026-10-12           |
       | email       | testnew@gmail.com    |
       | phone       | 987542467800         |
     When I attempt to retrieve the booking without an authentication token
