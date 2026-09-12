@@ -41,4 +41,13 @@ public class FetchBookingSteps {
         BookingAssertions.assertBookingDetailsMatch(context, response);
     }
 
+    @When("I attempt to retrieve the booking without an authentication token")
+    public void i_attempt_to_retrieve_the_booking_without_an_authentication_token() {
+        response = BookingActions.getBooking(context, false);
+    }
+
+    @Then("the request should be rejected as unauthorized")
+    public void the_request_should_be_rejected_as_unauthorized() {
+        BookingAssertions.assertStatusCode(response, 401);
+    }
 }
