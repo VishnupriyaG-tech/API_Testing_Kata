@@ -1,17 +1,18 @@
 package com.booking.stepdefinitions;
 
-import com.booking.models.Booking;
-import com.booking.utils.*;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.booking.utils.BookingActions;
+import com.booking.utils.BookingFactory;
+import com.booking.utils.Resources;
+import com.booking.utils.TestContext;
 import io.cucumber.datatable.DataTable;
-import io.cucumber.java.en.*;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import io.restassured.module.jsv.JsonSchemaValidator;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.List;
-import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
@@ -19,7 +20,6 @@ import static org.hamcrest.Matchers.equalTo;
 public class BookingSteps {
 
     private final TestContext context;
-    private Booking requestBody;
     private Response response;
 
     public BookingSteps(TestContext context) {
@@ -45,38 +45,12 @@ public class BookingSteps {
 
     @When("I create a booking with the following details:")
     public void i_create_a_booking_with_the_following_details(DataTable dataTable) {
-        buildAndSendBooking(dataTable);
+        response = BookingActions.createBooking(context, dataTable);
     }
 
     @When("I create a booking with the incorrect requested details:")
     public void i_create_a_booking_with_the_incorrect_requested_details(DataTable dataTable) {
-        buildAndSendBooking(dataTable);
-    }
-
-    private void buildAndSendBooking(DataTable dataTable) {
-        Map<String, String> details = dataTable.asMap(String.class, String.class);
-        details.forEach(context::setSessionContext);
-
-        int roomId = Integer.parseInt(context.getSessionContext("roomid"));
-        requestBody = BookingFactory.fromMap(details, roomId);
-
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writeValueAsString(requestBody);
-            System.out.println("Request Body: " + json);
-        } catch (Exception e) {
-            System.out.println("Failed to serialize request body: " + e.getMessage());
-        }
-
-        response = given()
-                .spec(context.postPutRequestSpec)
-                .body(requestBody)
-                .when()
-                .post(Resources.BOOKING.getResource());
-
-        System.out.println("Response Body: " + response.getBody().asPrettyString());
-
-        context.setResponse(response);
+        response = BookingActions.createBooking(context, dataTable);
     }
 
     @Then("the booking should be created successfully")
@@ -127,4 +101,3 @@ public class BookingSteps {
         );
     }
 }
-
