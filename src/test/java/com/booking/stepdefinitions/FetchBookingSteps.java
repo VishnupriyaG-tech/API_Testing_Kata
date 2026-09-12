@@ -10,7 +10,6 @@ import io.restassured.response.Response;
 public class FetchBookingSteps {
 
     private final TestContext context;
-    private Response response;
 
     public FetchBookingSteps(TestContext context) {
         this.context = context;
@@ -28,26 +27,26 @@ public class FetchBookingSteps {
 
     @When("I retrieve the booking using its booking id")
     public void i_retrieve_the_booking_using_its_booking_id() {
-        response = BookingActions.getBooking(context, true);
+        BookingActions.getBooking(context, true);
     }
 
     @Then("the booking should be retrieved successfully")
     public void the_booking_should_be_retrieved_successfully() {
-        BookingAssertions.assertStatusCode(response, 200);
+        BookingAssertions.assertStatusCode(context.getResponse(), 200);
     }
 
     @Then("the retrieved booking details should match the originally submitted details")
     public void the_retrieved_booking_details_should_match_the_originally_submitted_details() {
-        BookingAssertions.assertBookingDetailsMatch(context, response);
+        BookingAssertions.assertBookingDetailsMatch(context, context.getResponse());
     }
 
     @When("I attempt to retrieve the booking without an authentication token")
     public void i_attempt_to_retrieve_the_booking_without_an_authentication_token() {
-        response = BookingActions.getBooking(context, false);
+        BookingActions.getBooking(context, false);
     }
 
     @Then("the request should be rejected as unauthorized")
     public void the_request_should_be_rejected_as_unauthorized() {
-        BookingAssertions.assertStatusCode(response, 401);
+        BookingAssertions.assertStatusCode(context.getResponse(), 401);
     }
 }

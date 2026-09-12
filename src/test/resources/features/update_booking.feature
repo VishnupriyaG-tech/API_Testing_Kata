@@ -1,3 +1,9 @@
+@API @Booking @Auth
+Feature: Update Room Reservation Details
+  As a user
+  I want to update the details of an existing booking
+  So that I can correct or change my reservation information
+
 Background:
 Given the Booking service is up and running
 
