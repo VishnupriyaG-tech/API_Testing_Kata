@@ -1,15 +1,14 @@
 package com.booking.utils;
 
-import com.booking.utils.ConfigReader;
-
-public enum Resources {
+public enum ApiResource {
 
     BOOKING(ConfigReader.getBookingEndpoint()),
-    HEALTH(ConfigReader.getBookingHealthCheck());
+    HEALTH(ConfigReader.getBookingHealthCheck()),
+    AUTH(ConfigReader.getAuthEndpoint());
 
     private final String resource;
 
-    Resources(String resource) {
+    ApiResource(String resource) {
         this.resource = resource;
     }
 

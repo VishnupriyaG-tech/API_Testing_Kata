@@ -1,9 +1,6 @@
 package com.booking.stepdefinitions;
 
-import com.booking.utils.BookingActions;
-import com.booking.utils.BookingFactory;
-import com.booking.utils.Resources;
-import com.booking.utils.TestContext;
+import com.booking.utils.*;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -31,7 +28,7 @@ public class BookingSteps {
         given()
                 .spec(context.postPutRequestSpec)
                 .when()
-                .get(Resources.HEALTH.getResource())
+                .get(ApiResource.HEALTH.getResource())
                 .then()
                 .statusCode(200)
                 .body("status", equalTo("UP"));
@@ -55,7 +52,7 @@ public class BookingSteps {
 
     @Then("the booking should be created successfully")
     public void the_booking_should_be_created_successfully() {
-        Assertions.assertEquals(201, response.getStatusCode(), "Unexpected status code");
+        BookingAssertions.assertStatusCode(response, 201);
     }
 
     @Then("the response should contain a valid booking id")
@@ -65,17 +62,8 @@ public class BookingSteps {
 
     @Then("the booking confirmation should reflect the submitted guest and stay details")
     public void the_booking_confirmation_should_reflect_the_submitted_details() {
-        Assertions.assertEquals(Integer.parseInt(context.getSessionContext("roomid")), response.jsonPath().getInt("roomid"));
-        Assertions.assertEquals(context.getSessionContext("firstname"), response.jsonPath().getString("firstname"));
-        Assertions.assertEquals(context.getSessionContext("lastname"), response.jsonPath().getString("lastname"));
-
-        String deposit = context.getSessionContext("depositpaid");
-        if (deposit != null) {
-            Assertions.assertEquals(Boolean.parseBoolean(deposit), response.jsonPath().getBoolean("depositpaid"));
-        }
-
-        Assertions.assertEquals(context.getSessionContext("checkin"), response.jsonPath().getString("bookingdates.checkin"));
-        Assertions.assertEquals(context.getSessionContext("checkout"), response.jsonPath().getString("bookingdates.checkout"));
+        BookingAssertions.assertRoomIdMatches(context, response);
+        BookingAssertions.assertBookingDetailsMatch(context, response);
         // Note: email and phone are submitted in the request but are not
         // returned in the response body by this API, so they are not
         // asserted here.
@@ -89,7 +77,7 @@ public class BookingSteps {
 
     @Then("the system rejects the booking request due to validation errors")
     public void the_system_rejects_the_booking_request_due_to_validation_errors() {
-        Assertions.assertEquals(400, response.getStatusCode(), "Unexpected status code");
+        BookingAssertions.assertStatusCode(response, 400);
     }
 
     @Then("the validation error message indicates {string}")

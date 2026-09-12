@@ -34,7 +34,7 @@ import static io.restassured.RestAssured.given;
                     .spec(context.postPutRequestSpec)
                     .body(requestBody)
                     .when()
-                    .post(Resources.BOOKING.getResource());
+                    .post(ApiResource.BOOKING.getResource());
 
             System.out.println("Response Body: " + response.getBody().asPrettyString());
 
