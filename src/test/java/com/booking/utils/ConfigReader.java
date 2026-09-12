@@ -38,4 +38,15 @@ public class ConfigReader {
 
         return properties.getProperty("healthcheck.endpoint");
     }
+    public static String getAuthEndpoint() {
+        return properties.getProperty("auth.endpoint");
+    }
+
+    public static String getAuthUsername() {
+        return properties.getProperty("auth.username");
+    }
+
+    public static String getAuthPassword() {
+        return properties.getProperty("auth.password");
+    }
 }
