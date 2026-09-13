@@ -7,6 +7,8 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.module.jsv.JsonSchemaValidator;
 import org.junit.jupiter.api.Assertions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -14,6 +16,9 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
 public class CreateBookingSteps {
+
+    private static final Logger log = LoggerFactory.getLogger(CreateBookingSteps.class);
+    private static boolean serviceKnownDown = false;
 
     private final TestContext context;
 
@@ -23,13 +28,26 @@ public class CreateBookingSteps {
 
     @Given("the Booking service is up and running")
     public void the_booking_service_is_up_and_running() {
-        given()
-                .spec(context.requestSpec)
-                .when()
-                .get(ApiResource.HEALTH.getResource())
-                .then()
-                .statusCode(200)
-                .body("status", equalTo("UP"));
+        if (serviceKnownDown) {
+            throw new IllegalStateException(
+                    "Booking service was detected as down earlier in this run — skipping this scenario."
+            );
+        }
+
+        try {
+            given()
+                    .baseUri(ConfigReader.getBaseUrl())
+                    .when()
+                    .get(ApiResource.HEALTH.getResource())
+                    .then()
+                    .statusCode(200)
+                    .body("status", equalTo("UP"));
+
+        } catch (Throwable e) {
+            serviceKnownDown = true;
+            log.error("Booking service health check FAILED. Remaining scenarios will fail fast. Reason: {}", e.getMessage());
+            throw new IllegalStateException("Booking service is not up and running — skipping this scenario.");
+        }
     }
 
     @Given("a guest wants to reserve a room")
