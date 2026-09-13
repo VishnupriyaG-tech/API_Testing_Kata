@@ -5,12 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.datatable.DataTable;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 
     public class BookingActions {
+        private static final Logger log = LoggerFactory.getLogger(BookingActions.class);
 
         private BookingActions() {
             // utility class, no instances
@@ -26,9 +29,9 @@ import static io.restassured.RestAssured.given;
             try {
                 ObjectMapper mapper = new ObjectMapper();
                 String json = mapper.writeValueAsString(requestBody);
-                System.out.println("Request Body: " + json);
+                log.info("Request Body: " + json);
             } catch (Exception e) {
-                System.out.println("Failed to serialize request body: " + e.getMessage());
+                log.error("Failed to serialize request body: " + e.getMessage());
             }
 
             Response response = given()
@@ -37,7 +40,7 @@ import static io.restassured.RestAssured.given;
                     .when()
                     .post(ApiResource.BOOKING.getResource());
 
-            System.out.println("Response Body: " + response.getBody().asPrettyString());
+            log.info("Response Body: " + response.getBody().asPrettyString());
             Integer bookingId = response.jsonPath().get("bookingid");
             if (bookingId != null) {
                 context.setSessionContext("bookingid", String.valueOf(bookingId));
@@ -61,7 +64,7 @@ import static io.restassured.RestAssured.given;
                     .when()
                     .get(path);
 
-            System.out.println("Response Body: " + response.getBody().asPrettyString());
+            log.info("Response Body: " + response.getBody().asPrettyString());
 
             context.setResponse(response);
             return response;
@@ -79,9 +82,9 @@ import static io.restassured.RestAssured.given;
             try {
                 ObjectMapper mapper = new ObjectMapper();
                 String json = mapper.writeValueAsString(requestBody);
-                System.out.println("Request Body: " + json);
+                log.info("Request Body: " + json);
             } catch (Exception e) {
-                System.out.println("Failed to serialize request body: " + e.getMessage());
+                log.error("Failed to serialize request body: " + e.getMessage());
             }
 
             String bookingId = context.getSessionContext("bookingid");
@@ -100,10 +103,9 @@ import static io.restassured.RestAssured.given;
                     .when()
                     .put(path);
 
-            System.out.println("Response Body: " + response.getBody().asPrettyString());
+            log.info("Response Body: " + response.getBody().asPrettyString());
 
             context.setResponse(response);
             return response;
         }
     }
-
