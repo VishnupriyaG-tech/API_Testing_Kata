@@ -5,6 +5,7 @@ import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.restassured.module.jsv.JsonSchemaValidator;
 import io.restassured.response.Response;
 
 public class FetchBookingSteps {
@@ -38,6 +39,12 @@ public class FetchBookingSteps {
     @Then("the retrieved booking details should match the originally submitted details")
     public void the_retrieved_booking_details_should_match_the_originally_submitted_details() {
         BookingAssertions.assertBookingDetailsMatch(context, context.getResponse());
+    }
+
+    @Then("the retrieved booking adheres to the expected response structure")
+    public void the_retrieved_booking_adheres_to_the_expected_response_structure() {
+        context.getResponse().then().assertThat()
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("schemas/booking-schema.json"));
     }
 
     @When("I attempt to retrieve the booking without an authentication token")

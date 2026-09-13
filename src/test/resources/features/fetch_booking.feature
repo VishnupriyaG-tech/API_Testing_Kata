@@ -22,6 +22,7 @@ Feature: Retrieve Room Reservation Details
     When I retrieve the booking using its booking id
     Then the booking should be retrieved successfully
     And the retrieved booking details should match the originally submitted details
+    And the retrieved booking adheres to the expected response structure
 
   @regression @negative @auth
   Scenario: Fail to retrieve a booking without providing an authentication token
