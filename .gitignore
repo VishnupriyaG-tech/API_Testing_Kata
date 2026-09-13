@@ -33,3 +33,18 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Windows OS ###
+Thumbs.db
+desktop.ini
+
+### IntelliJ (non-Maven-delegated build output) ###
+out/
+
+### Logs ###
+*.log
+logs/
+
+### Cucumber reports (generated, not source-controlled) ###
+/cucumber-reports/
+/cucumber-html-reports/
