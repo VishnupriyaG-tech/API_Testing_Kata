@@ -1,6 +1,7 @@
 package com.booking.utils;
 
-import com.booking.models.*;
+import com.booking.models.Booking;
+import com.booking.models.BookingDates;
 
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;

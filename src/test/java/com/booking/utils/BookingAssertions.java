@@ -13,6 +13,13 @@ public class BookingAssertions {
         Assertions.assertEquals(expectedStatusCode, response.getStatusCode(), "Unexpected status code");
     }
 
+    public static void assertRoomIdMatches(TestContext context, Response response, String pathPrefix) {
+        Assertions.assertEquals(
+                Integer.parseInt(context.getSessionContext("roomid")),
+                response.jsonPath().getInt(pathPrefix + "roomid")
+        );
+    }
+
     public static void assertRoomIdMatches(TestContext context, Response response) {
         Assertions.assertEquals(
                 Integer.parseInt(context.getSessionContext("roomid")),
@@ -21,15 +28,19 @@ public class BookingAssertions {
     }
 
     public static void assertBookingDetailsMatch(TestContext context, Response response) {
-        Assertions.assertEquals(context.getSessionContext("firstname"), response.jsonPath().getString("firstname"));
-        Assertions.assertEquals(context.getSessionContext("lastname"), response.jsonPath().getString("lastname"));
+        assertBookingDetailsMatch(context, response, "");
+    }
+
+    public static void assertBookingDetailsMatch(TestContext context, Response response, String pathPrefix) {
+        Assertions.assertEquals(context.getSessionContext("firstname"), response.jsonPath().getString(pathPrefix + "firstname"));
+        Assertions.assertEquals(context.getSessionContext("lastname"), response.jsonPath().getString(pathPrefix + "lastname"));
 
         String deposit = context.getSessionContext("depositpaid");
         if (deposit != null) {
-            Assertions.assertEquals(Boolean.parseBoolean(deposit), response.jsonPath().getBoolean("depositpaid"));
+            Assertions.assertEquals(Boolean.parseBoolean(deposit), response.jsonPath().getBoolean(pathPrefix + "depositpaid"));
         }
 
-        Assertions.assertEquals(context.getSessionContext("checkin"), response.jsonPath().getString("bookingdates.checkin"));
-        Assertions.assertEquals(context.getSessionContext("checkout"), response.jsonPath().getString("bookingdates.checkout"));
+        Assertions.assertEquals(context.getSessionContext("checkin"), response.jsonPath().getString(pathPrefix + "bookingdates.checkin"));
+        Assertions.assertEquals(context.getSessionContext("checkout"), response.jsonPath().getString(pathPrefix + "bookingdates.checkout"));
     }
 }

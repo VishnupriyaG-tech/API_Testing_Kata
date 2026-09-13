@@ -38,6 +38,7 @@ public class ConfigReader {
 
         return properties.getProperty("healthcheck.endpoint");
     }
+
     public static String getAuthEndpoint() {
         return properties.getProperty("auth.endpoint");
     }

@@ -3,7 +3,6 @@ package com.booking.utils;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import com.booking.utils.ConfigReader;
 
 import java.util.HashMap;
 import java.util.Map;

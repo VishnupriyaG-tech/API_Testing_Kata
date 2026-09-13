@@ -1,11 +1,12 @@
 package com.booking.stepdefinitions;
 
-import com.booking.utils.*;
+import com.booking.utils.BookingActions;
+import com.booking.utils.BookingAssertions;
+import com.booking.utils.TestContext;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.module.jsv.JsonSchemaValidator;
-import io.restassured.response.Response;
 
 public class UpdateBookingSteps {
 

@@ -13,119 +13,123 @@ import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 
-    public class BookingActions {
-        private static final Logger log = LoggerFactory.getLogger(BookingActions.class);
+public class BookingActions {
+    private static final Logger log = LoggerFactory.getLogger(BookingActions.class);
 
-        private BookingActions() {
-            // utility class, no instances
+    private BookingActions() {
+        // utility class, no instances
+    }
+
+    public static Response createBooking(TestContext context, DataTable dataTable) {
+        Map<String, String> details = extractDetails(context, dataTable);
+
+        int roomId = Integer.parseInt(context.getSessionContext("roomid"));
+        Booking requestBody = BookingFactory.fromMap(details, roomId);
+        logRequestBody(requestBody);
+        Response response = given()
+                .spec(context.requestSpec)
+                .body(requestBody)
+                .when()
+                .post(ApiResource.BOOKING.getResource());
+
+        Integer bookingId = response.jsonPath().get("bookingid");
+        if (bookingId != null) {
+            context.setSessionContext("bookingid", String.valueOf(bookingId));
         }
+        return captureResponse(context, response);
+    }
 
-        public static Response createBooking(TestContext context, DataTable dataTable) {
-            Map<String, String> details = dataTable.asMap(String.class, String.class);
-            details.forEach(context::setSessionContext);
+    public static Response getBooking(TestContext context, boolean withAuth) {
 
-            int roomId = Integer.parseInt(context.getSessionContext("roomid"));
-            Booking requestBody = BookingFactory.fromMap(details, roomId);
-            logRequestBody(requestBody);
-            Response response = given()
-                    .spec(context.requestSpec)
-                    .body(requestBody)
-                    .when()
-                    .post(ApiResource.BOOKING.getResource());
+        Response response = authenticatedRequest(context, withAuth).when()
+                .get(bookingPath(context));
+        return captureResponse(context, response);
+    }
 
-            Integer bookingId = response.jsonPath().get("bookingid");
-            if (bookingId != null) {
-                context.setSessionContext("bookingid", String.valueOf(bookingId));
-            }
-            return captureResponse(context,response);
+    public static Response updateBooking(TestContext context, DataTable dataTable, boolean withAuth) {
+        Map<String, String> details = extractDetails(context, dataTable);
+
+        int roomId = details.containsKey("roomid")
+                ? Integer.parseInt(details.get("roomid"))
+                : Integer.parseInt(context.getSessionContext("roomid"));
+
+        Booking requestBody = BookingFactory.fromMap(details, roomId);
+        logRequestBody(requestBody);
+
+        Response response = authenticatedRequest(context, withAuth)
+                .body(requestBody)
+                .when()
+                .put(bookingPath(context));
+
+        return captureResponse(context, response);
+    }
+
+    public static Response deleteBooking(TestContext context, boolean withAuth) {
+
+        Response response = authenticatedRequest(context, withAuth)
+                .when()
+                .delete(bookingPath(context));
+
+        return captureResponse(context, response);
+    }
+
+    public static Response patchBooking(TestContext context, DataTable dataTable, boolean withAuth) {
+        Map<String, String> details = extractDetails(context, dataTable);
+
+        Map<String, Object> patchBody = new LinkedHashMap<>();
+        if (details.containsKey("firstname")) {
+            patchBody.put("firstname", details.get("firstname"));
         }
-
-        public static Response getBooking(TestContext context, boolean withAuth) {
-
-            Response response = authenticatedRequest(context, withAuth).when()
-                    .get(bookingPath(context));
-            return captureResponse(context,response);
+        if (details.containsKey("lastname")) {
+            patchBody.put("lastname", details.get("lastname"));
         }
-
-        public static Response updateBooking(TestContext context, DataTable dataTable, boolean withAuth) {
-            Map<String, String> details = dataTable.asMap(String.class, String.class);
-            details.forEach(context::setSessionContext);
-
-            int roomId = details.containsKey("roomid")
-                    ? Integer.parseInt(details.get("roomid"))
-                    : Integer.parseInt(context.getSessionContext("roomid"));
-
-            Booking requestBody = BookingFactory.fromMap(details, roomId);
-            logRequestBody(requestBody);
-
-            Response response = authenticatedRequest(context,withAuth)
-                    .body(requestBody)
-                    .when()
-                    .put(bookingPath(context));
-
-            return captureResponse(context,response);
+        if (details.containsKey("depositpaid")) {
+            patchBody.put("depositpaid", Boolean.parseBoolean(details.get("depositpaid")));
         }
+        logRequestBody(patchBody);
 
-        public static Response deleteBooking(TestContext context, boolean withAuth) {
+        Response response = authenticatedRequest(context, withAuth)
+                .body(patchBody)
+                .when()
+                .patch(bookingPath(context));
 
-            Response response = authenticatedRequest(context, withAuth)
-                    .when()
-                    .delete(bookingPath(context));
+        return captureResponse(context, response);
+    }
 
-            return captureResponse(context,response);
+    private static Map<String, String> extractDetails(TestContext context, DataTable dataTable) {
+        Map<String, String> details = dataTable.asMap(String.class, String.class);
+        details.forEach(context::setSessionContext);
+        return details;
+    }
+
+    private static String bookingPath(TestContext context) {
+        String bookingId = context.getSessionContext("bookingid");
+        return ApiResource.BOOKING.getResource() + "/" + bookingId;
+    }
+
+    private static RequestSpecification authenticatedRequest(TestContext context, boolean withAuth) {
+        RequestSpecification request = given().spec(context.requestSpec);
+
+        if (withAuth) {
+            String token = context.getSessionContext("token");
+            request = request.cookie("token", token);
         }
+        return request;
+    }
 
-        public static Response patchBooking(TestContext context, DataTable dataTable, boolean withAuth) {
-            Map<String, String> details = dataTable.asMap(String.class, String.class);
-            details.forEach(context::setSessionContext);
+    private static Response captureResponse(TestContext context, Response response) {
+        log.info("Response Body: " + response.getBody().asPrettyString());
+        context.setResponse(response);
+        return response;
+    }
 
-            Map<String, Object> patchBody = new LinkedHashMap<>();
-            if (details.containsKey("firstname")) {
-                patchBody.put("firstname", details.get("firstname"));
-            }
-            if (details.containsKey("lastname")) {
-                patchBody.put("lastname", details.get("lastname"));
-            }
-            if (details.containsKey("depositpaid")) {
-                patchBody.put("depositpaid", Boolean.parseBoolean(details.get("depositpaid")));
-            }
-            logRequestBody(patchBody);
-
-            Response response = authenticatedRequest(context, withAuth)
-                    .body(patchBody)
-                    .when()
-                    .patch(bookingPath(context));
-
-            return captureResponse(context, response);
-        }
-
-        private static String bookingPath(TestContext context){
-            String bookingId = context.getSessionContext("bookingid");
-            return ApiResource.BOOKING.getResource() + "/" + bookingId;
-        }
-
-        private static RequestSpecification authenticatedRequest(TestContext context, boolean withAuth){
-            RequestSpecification request = given().spec(context.requestSpec);
-
-            if (withAuth) {
-                String token = context.getSessionContext("token");
-                request = request.cookie("token", token);
-            }
-            return request;
-        }
-
-        private static Response captureResponse(TestContext context, Response response){
-            log.info("Response Body: " + response.getBody().asPrettyString());
-            context.setResponse(response);
-            return response;
-        }
-
-        private static void logRequestBody(Object requestBody) {
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                log.info("Request Body: {}", mapper.writeValueAsString(requestBody));
-            } catch (Exception e) {
-                log.error("Failed to serialize request body", e);
-            }
+    private static void logRequestBody(Object requestBody) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            log.info("Request Body: {}", mapper.writeValueAsString(requestBody));
+        } catch (Exception e) {
+            log.error("Failed to serialize request body", e);
         }
     }
+
+}

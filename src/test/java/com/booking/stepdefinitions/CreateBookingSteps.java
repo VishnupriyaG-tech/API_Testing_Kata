@@ -74,8 +74,8 @@ public class CreateBookingSteps {
 
     @Then("the booking confirmation should reflect the submitted guest and stay details")
     public void the_booking_confirmation_should_reflect_the_submitted_details() {
-        BookingAssertions.assertRoomIdMatches(context, context.getResponse());
-        BookingAssertions.assertBookingDetailsMatch(context, context.getResponse());
+        BookingAssertions.assertRoomIdMatches(context, context.getResponse(), "booking.");
+        BookingAssertions.assertBookingDetailsMatch(context, context.getResponse(), "booking.");
         // Note: email and phone are submitted in the request but are not
         // returned in the response body by this API, so they are not
         // asserted here.
