@@ -25,49 +25,25 @@ import static io.restassured.RestAssured.given;
 
             int roomId = Integer.parseInt(context.getSessionContext("roomid"));
             Booking requestBody = BookingFactory.fromMap(details, roomId);
-
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                String json = mapper.writeValueAsString(requestBody);
-                log.info("Request Body: " + json);
-            } catch (Exception e) {
-                log.error("Failed to serialize request body: " + e.getMessage());
-            }
-
+            logRequestBody(requestBody);
             Response response = given()
                     .spec(context.requestSpec)
                     .body(requestBody)
                     .when()
                     .post(ApiResource.BOOKING.getResource());
 
-            log.info("Response Body: " + response.getBody().asPrettyString());
             Integer bookingId = response.jsonPath().get("bookingid");
             if (bookingId != null) {
                 context.setSessionContext("bookingid", String.valueOf(bookingId));
             }
-            context.setResponse(response);
-            return response;
+            return captureResponse(context,response);
         }
 
         public static Response getBooking(TestContext context, boolean withAuth) {
-            String bookingId = context.getSessionContext("bookingid");
-            String path = ApiResource.BOOKING.getResource() + "/" + bookingId;
 
-            RequestSpecification request = given().spec(context.requestSpec);
-
-            if (withAuth) {
-                String token = context.getSessionContext("token");
-                request = request.cookie("token", token);
-            }
-
-            Response response = request
-                    .when()
-                    .get(path);
-
-            log.info("Response Body: " + response.getBody().asPrettyString());
-
-            context.setResponse(response);
-            return response;
+            Response response = authenticatedRequest(context, withAuth).when()
+                    .get(bookingPath(context));
+            return captureResponse(context,response);
         }
 
         public static Response updateBooking(TestContext context, DataTable dataTable, boolean withAuth) {
@@ -77,35 +53,45 @@ import static io.restassured.RestAssured.given;
             int roomId = details.containsKey("roomid")
                     ? Integer.parseInt(details.get("roomid"))
                     : Integer.parseInt(context.getSessionContext("roomid"));
+
             Booking requestBody = BookingFactory.fromMap(details, roomId);
+            logRequestBody(requestBody);
 
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                String json = mapper.writeValueAsString(requestBody);
-                log.info("Request Body: " + json);
-            } catch (Exception e) {
-                log.error("Failed to serialize request body: " + e.getMessage());
-            }
+            Response response = authenticatedRequest(context,withAuth)
+                    .body(requestBody)
+                    .when()
+                    .put(bookingPath(context));
 
+            return captureResponse(context,response);
+        }
+
+        private static String bookingPath(TestContext context){
             String bookingId = context.getSessionContext("bookingid");
-            String path = ApiResource.BOOKING.getResource() + "/" + bookingId;
+            return ApiResource.BOOKING.getResource() + "/" + bookingId;
+        }
 
-            RequestSpecification request = given()
-                    .spec(context.requestSpec)
-                    .body(requestBody);
+        private static RequestSpecification authenticatedRequest(TestContext context, boolean withAuth){
+            RequestSpecification request = given().spec(context.requestSpec);
 
             if (withAuth) {
                 String token = context.getSessionContext("token");
                 request = request.cookie("token", token);
             }
+            return request;
+        }
 
-            Response response = request
-                    .when()
-                    .put(path);
-
+        private static Response captureResponse(TestContext context, Response response){
             log.info("Response Body: " + response.getBody().asPrettyString());
-
             context.setResponse(response);
             return response;
+        }
+
+        private static void logRequestBody(Object requestBody) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                log.info("Request Body: {}", mapper.writeValueAsString(requestBody));
+            } catch (Exception e) {
+                log.error("Failed to serialize request body", e);
+            }
         }
     }
