@@ -1,67 +1,152 @@
-# Kata API Testing in Java
+# API Testing Kata
 
-API Testing and Java Exercise: Setting up a Basic API Test Automation Framework.
+A Cucumber + REST Assured based API test automation framework for the
+**Restful-Booker Platform** booking API
+([automationintesting.online](https://automationintesting.online)).
 
-## Objective
-The objective of this exercise is to evaluate your knowledge on API testing and Java by setting up a basic API Test Automation framework using Rest-Assured and Cucumber. You will need to create a test suite that executes a few tests against one endpoint of a hotel booking website and evaluates their responses.
+Covers full CRUD lifecycle testing for the `/booking` resource, including
+authentication, positive and negative scenarios, JSON schema validation
+against the documented OpenAPI spec, and automated HTML reporting.
 
-## Background
-The application under test is a simple hotel booking website where you can book a room and also send a form with a request.
+---
 
-The website can be accessed at https://automationintesting.online/.
+## Tech Stack
 
-The Swagger documentation for the two endpoints you will be testing can be found at:
+| Category | Tool |
+|---|---|
+| Language | Java 17 |
+| BDD Framework | Cucumber-JVM 7.34.6 |
+| API Client | REST Assured 6.0.1 |
+| Test Runner | JUnit 5 (JUnit Platform Suite) |
+| Dependency Injection | Cucumber PicoContainer |
+| JSON Mapping | Jackson Databind |
+| Schema Validation | REST Assured JSON Schema Validator |
+| Logging | SLF4J |
+| Reporting | Masterthought Cucumber Reporting |
+| Build Tool | Maven |
 
-Booking endpoint: https://automationintesting.online/booking/swagger-ui/index.html  
-Optionally, you also have the Authentican endpoint: https://automationintesting.online/auth/swagger-ui/index.html
+---
 
-### Swagger
-This website is an external application which is not in our control.  
-We noticed that the Swagger documentation is sometimes not available on the mentioned URL above.  
-As a backup, you can find the Swagger documentation in this repository at [src/test/resources/spec/booking.yaml](src/test/resources/spec/booking.yaml)
+## Project Structure
 
-The Open API Spec file is only supported in the Ultimate version of IntelliJ IDEA. But you can copy the content of the file and paste it in an online Swagger editor like https://editor.swagger.io/ to visualize the API documentation.
+```
+API_Testing_Kata/
+├── pom.xml
+└── src/test/
+    ├── java/com/booking/
+    │   ├── TestRunner.java              # JUnit 5 Suite entry point
+    │   ├── models/                      # Request/response data (Java records)
+    │   ├── stepdefinitions/             # Gherkin step implementations
+    │   ├── utils/                       # Config, API actions, assertions, context
+    │   └── reporting/                   # Automatic HTML report generation
+    └── resources/
+        ├── config/config.properties     # Base URL, endpoints, credentials
+        ├── features/                    # Gherkin feature files
+        ├── schemas/                     # JSON schemas (per booking.yaml spec)
+        └── META-INF/services/           # ServiceLoader registration
+```
 
-### Authentication
-In order to authenticate yourself, the required credentials are:
-* Username: `admin`
-* Password: `password`
+---
 
-## Task
-You are provided with an extremely basic API test project.
+## Prerequisites
 
-Please clone the project and create a new branch with your name. At the end, please push your branch to this project.
+- JDK 17+
+- Maven 3.9+ (or use IntelliJ's bundled Maven)
+- IntelliJ IDEA (recommended) with the Cucumber for Java plugin
 
-The project to start from, can be found here: https://github.com/freddyschoeters/API_Testing_kata
+---
 
-Your task is to set up an API Test Automation framework from this project using Java, Rest-Assured, and Cucumber (feel free to add more dependencies if required).
+## Setup
 
-It is up to you to define the test cases. You don’t need to have a full coverage, but you need to show enough variation on the types of tests that you would need to write and execute, and what to check in the response.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/VishnupriyaG-tech/API_Testing_Kata.git
+   ```
+2. Open in IntelliJ as a Maven project (or run `mvn compile` from the terminal).
+3. Confirm `src/test/java` is marked as **Test Sources Root** and
+   `src/test/resources` as **Test Resources Root**.
 
-This kata has the purpose to evaluate both your technical skills as well as your testing skills.
+---
 
-`For this task, you will use the booking endpoint.`
+## Configuration
 
+Base URL, endpoint paths, and auth credentials are set in:
+```
+src/test/resources/config/config.properties
+```
 
-## Requirements
-* Use Java as the programming language
-* Use Rest-Assured as the API testing library
-* Use Cucumber as the BDD framework
-* Design your codebase using a proper Java design pattern
-* Write good tests with correct checks
-* Use Git for version control and push your codebase to an open GitHub repository
-* Make regular commits to demonstrate your progress
+---
 
+## Running the Tests
 
-## Deliverables
-* Your branch pushed in the provided project.
-* A comprehensive test suite covering the scenarios mentioned above
-* A well-structured codebase with proper design patterns and comments
-* Regular commits demonstrating your progress
+### Run everything
+Right-click `TestRunner.java` → **Run**, or:
+```bash
+mvn test
+```
 
-## Evaluation Criteria
-* Being able to successfully run the tests
-* Correctness and completeness of the test suite
-* Quality of the codebase (design patterns, structure, code quality, …)
-* Use of Rest-Assured and Cucumber features
-* Commit history and progress demonstration
+### Run by tag
+```bash
+mvn test -Dcucumber.filter.tags="@smoke"
+mvn test -Dcucumber.filter.tags="@smoke or @regression"
+mvn test -Dcucumber.filter.tags="@positive and not @smoke"
+```
+
+Available tags: `@smoke`, `@regression`, `@positive`, `@negative`, `@auth`.
+
+---
+
+## Feature Coverage
+
+| Feature file | Endpoint | Scenarios |
+|---|---|---|
+| `create_booking.feature` | `POST /booking` | Positive (smoke + outline), negative validation |
+| `fetch_booking.feature` | `GET /booking/{id}` | Positive with auth, negative without auth |
+| `update_booking.feature` | `PUT /booking/{id}` | Positive with auth, negative without auth |
+| `patch_booking.feature` | `PATCH /booking/{id}` | Positive with auth, negative without auth |
+| `delete_booking.feature` | `DELETE /booking/{id}` | Positive with auth, negative without auth |
+
+---
+
+## Reporting
+
+An HTML dashboard is generated **automatically** after every test run — no
+extra command needed. This works whether you run via IntelliJ's Run button
+or via Maven, thanks to a `TestExecutionListener` registered via
+`ServiceLoader`.
+
+Open the report at:
+```
+target/cucumber-html-reports/overview-features.html
+```
+
+---
+
+## Known API Discrepancies
+
+The live API deviates from its own documented `booking.yaml` OpenAPI spec
+in several places (status codes, response shapes, missing fields, and an
+unimplemented `PATCH` method). Full details, including repro steps and
+captured request/response bodies, are documented in:
+```
+api_testing_observations.md
+```
+
+Schema validation steps are written against the **documented spec**, not
+observed behavior — so several schema-adherence assertions are expected to
+fail until the API is brought in line with its own documentation.
+
+---
+
+## Commit Message Convention
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/)
+style types (`feat`, `fix`, `refactor`, `test`, `chore`, `docs`), with a
+short imperative subject line and a brief body explaining what changed.
+
+---
+
+## Author
+
+**Vishnupriya G**
+
