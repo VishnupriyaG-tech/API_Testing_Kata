@@ -8,6 +8,7 @@ import io.restassured.specification.RequestSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
@@ -72,6 +73,30 @@ import static io.restassured.RestAssured.given;
                     .delete(bookingPath(context));
 
             return captureResponse(context,response);
+        }
+
+        public static Response patchBooking(TestContext context, DataTable dataTable, boolean withAuth) {
+            Map<String, String> details = dataTable.asMap(String.class, String.class);
+            details.forEach(context::setSessionContext);
+
+            Map<String, Object> patchBody = new LinkedHashMap<>();
+            if (details.containsKey("firstname")) {
+                patchBody.put("firstname", details.get("firstname"));
+            }
+            if (details.containsKey("lastname")) {
+                patchBody.put("lastname", details.get("lastname"));
+            }
+            if (details.containsKey("depositpaid")) {
+                patchBody.put("depositpaid", Boolean.parseBoolean(details.get("depositpaid")));
+            }
+            logRequestBody(patchBody);
+
+            Response response = authenticatedRequest(context, withAuth)
+                    .body(patchBody)
+                    .when()
+                    .patch(bookingPath(context));
+
+            return captureResponse(context, response);
         }
 
         private static String bookingPath(TestContext context){
