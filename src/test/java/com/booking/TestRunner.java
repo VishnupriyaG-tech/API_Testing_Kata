@@ -1,14 +1,21 @@
 package com.booking;
 
-import org.junit.platform.suite.api.*;
-import static io.cucumber.core.options.Constants.GLUE_PROPERTY_NAME;
-import static io.cucumber.core.options.Constants.PLUGIN_PROPERTY_NAME;
+import io.cucumber.junit.platform.engine.Constants;
+import org.junit.platform.suite.api.ConfigurationParameter;
+import org.junit.platform.suite.api.IncludeEngines;
+import org.junit.platform.suite.api.SelectClasspathResource;
+import org.junit.platform.suite.api.Suite;
 
 @Suite
 @IncludeEngines("cucumber")
-@SelectPackages("com.booking")
 @SelectClasspathResource("features")
-@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.booking")
-@ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty, html:target/cucumber-reports.html, json:target/cucumber.json")
+@ConfigurationParameter(
+        key = Constants.GLUE_PROPERTY_NAME,
+        value = "com.booking.stepdefinitions"
+)
+@ConfigurationParameter(
+        key = Constants.PLUGIN_PROPERTY_NAME,
+        value = "pretty, summary, json:target/cucumber-reports/cucumber.json"
+)
 public class TestRunner {
 }
