@@ -6,7 +6,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.module.jsv.JsonSchemaValidator;
-import io.restassured.response.Response;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.List;
@@ -14,11 +13,11 @@ import java.util.List;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
-public class BookingSteps {
+public class CreateBookingSteps {
 
     private final TestContext context;
 
-    public BookingSteps(TestContext context) {
+    public CreateBookingSteps(TestContext context) {
         this.context = context;
     }
 
@@ -67,7 +66,7 @@ public class BookingSteps {
     @Then("the booking confirmation adheres to the expected response structure")
     public void the_booking_confirmation_adheres_to_the_expected_response_structure() {
         context.getResponse().then().assertThat()
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("schemas/booking-schema.json"));
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("schemas/create-booking-schema.json"));
     }
 
     @Then("the system rejects the booking request due to validation errors")
