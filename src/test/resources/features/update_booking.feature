@@ -29,6 +29,7 @@ Feature: Update Room Reservation Details
       | phone       | 912233445566      |
     Then the booking should be updated successfully
     And the updated booking details should reflect the submitted changes
+    And the updated booking adheres to the expected response structure
 
   @regression @negative @auth
   Scenario: Fail to update a booking without providing an authentication token

@@ -4,6 +4,7 @@ import com.booking.utils.*;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.restassured.module.jsv.JsonSchemaValidator;
 import io.restassured.response.Response;
 
 public class UpdateBookingSteps {
@@ -32,5 +33,11 @@ public class UpdateBookingSteps {
     @Then("the updated booking details should reflect the submitted changes")
     public void the_updated_booking_details_should_reflect_the_submitted_changes() {
         BookingAssertions.assertBookingDetailsMatch(context, context.getResponse());
+    }
+
+    @Then("the updated booking adheres to the expected response structure")
+    public void the_updated_booking_adheres_to_the_expected_response_structure() {
+        context.getResponse().then().assertThat()
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("schemas/booking-schema.json"));
     }
 }
