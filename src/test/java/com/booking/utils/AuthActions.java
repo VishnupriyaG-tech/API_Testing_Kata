@@ -19,7 +19,7 @@ public class AuthActions {
         credentials.put("password", password);
 
         Response response = given()
-                .spec(context.postPutRequestSpec)
+                .spec(context.requestSpec)
                 .body(credentials)
                 .when()
                 .post(ApiResource.AUTH.getResource());

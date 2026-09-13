@@ -18,7 +18,7 @@ public class TestContext {
     private final Map<String, String> sessionContext = new HashMap<>();
     private Response response;
 
-    public final RequestSpecification postPutRequestSpec = new RequestSpecBuilder()
+    public final RequestSpecification requestSpec = new RequestSpecBuilder()
             .setBaseUri(ConfigReader.getBaseUrl())
             .setContentType("application/json")
             .build();

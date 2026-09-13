@@ -25,7 +25,7 @@ public class BookingSteps {
     @Given("the Booking service is up and running")
     public void the_booking_service_is_up_and_running() {
         given()
-                .spec(context.postPutRequestSpec)
+                .spec(context.requestSpec)
                 .when()
                 .get(ApiResource.HEALTH.getResource())
                 .then()

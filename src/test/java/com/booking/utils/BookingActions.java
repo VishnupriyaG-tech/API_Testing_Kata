@@ -32,7 +32,7 @@ import static io.restassured.RestAssured.given;
             }
 
             Response response = given()
-                    .spec(context.postPutRequestSpec)
+                    .spec(context.requestSpec)
                     .body(requestBody)
                     .when()
                     .post(ApiResource.BOOKING.getResource());
@@ -50,7 +50,7 @@ import static io.restassured.RestAssured.given;
             String bookingId = context.getSessionContext("bookingid");
             String path = ApiResource.BOOKING.getResource() + "/" + bookingId;
 
-            RequestSpecification request = given().spec(context.postPutRequestSpec);
+            RequestSpecification request = given().spec(context.requestSpec);
 
             if (withAuth) {
                 String token = context.getSessionContext("token");
@@ -88,7 +88,7 @@ import static io.restassured.RestAssured.given;
             String path = ApiResource.BOOKING.getResource() + "/" + bookingId;
 
             RequestSpecification request = given()
-                    .spec(context.postPutRequestSpec)
+                    .spec(context.requestSpec)
                     .body(requestBody);
 
             if (withAuth) {
