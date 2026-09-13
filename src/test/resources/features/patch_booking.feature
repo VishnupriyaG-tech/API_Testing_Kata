@@ -24,6 +24,7 @@ Feature: Partially Update Room Reservation Details
       | depositpaid | false    |
     Then the booking should be partially updated successfully
     And the updated booking details should reflect the submitted changes
+    And the partially updated booking adheres to the expected response structure
 
   @regression @negative @auth
   Scenario: Fail to partially update a booking without providing an authentication token

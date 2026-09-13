@@ -4,6 +4,7 @@ import com.booking.utils.*;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.restassured.module.jsv.JsonSchemaValidator;
 
 public class PatchBookingSteps {
 
@@ -26,5 +27,11 @@ public class PatchBookingSteps {
     @Then("the booking should be partially updated successfully")
     public void the_booking_should_be_partially_updated_successfully() {
         BookingAssertions.assertStatusCode(context.getResponse(), 200);
+    }
+
+    @Then("the partially updated booking adheres to the expected response structure")
+    public void the_partially_updated_booking_adheres_to_the_expected_response_structure() {
+        context.getResponse().then().assertThat()
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("schemas/booking-schema.json"));
     }
 }
