@@ -65,6 +65,15 @@ import static io.restassured.RestAssured.given;
             return captureResponse(context,response);
         }
 
+        public static Response deleteBooking(TestContext context, boolean withAuth) {
+
+            Response response = authenticatedRequest(context, withAuth)
+                    .when()
+                    .delete(bookingPath(context));
+
+            return captureResponse(context,response);
+        }
+
         private static String bookingPath(TestContext context){
             String bookingId = context.getSessionContext("bookingid");
             return ApiResource.BOOKING.getResource() + "/" + bookingId;
