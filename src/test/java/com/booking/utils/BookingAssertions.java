@@ -36,11 +36,16 @@ public class BookingAssertions {
         Assertions.assertEquals(context.getSessionContext("lastname"), response.jsonPath().getString(pathPrefix + "lastname"));
 
         String deposit = context.getSessionContext("depositpaid");
-        if (deposit != null) {
-            Assertions.assertEquals(Boolean.parseBoolean(deposit), response.jsonPath().getBoolean(pathPrefix + "depositpaid"));
-        }
+        assertDepositPaidMatches(context, response, pathPrefix);
 
         Assertions.assertEquals(context.getSessionContext("checkin"), response.jsonPath().getString(pathPrefix + "bookingdates.checkin"));
         Assertions.assertEquals(context.getSessionContext("checkout"), response.jsonPath().getString(pathPrefix + "bookingdates.checkout"));
+    }
+
+    private static void assertDepositPaidMatches(TestContext context, Response response, String pathPrefix) {
+        String deposit = context.getSessionContext("depositpaid");
+        if (deposit != null) {
+            Assertions.assertEquals(Boolean.parseBoolean(deposit), response.jsonPath().getBoolean(pathPrefix + "depositpaid"));
+        }
     }
 }
