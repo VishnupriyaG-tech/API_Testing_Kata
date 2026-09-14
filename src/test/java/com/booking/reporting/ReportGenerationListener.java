@@ -24,7 +24,7 @@ public class ReportGenerationListener implements TestExecutionListener {
             return;
         }
         String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMAT);
-        File reportOutputDirectory = new File("target/cucumber-html-reports" + timestamp);
+        File reportOutputDirectory = new File("target/cucumber-html-reports/report-" + timestamp);
         List<String> jsonFiles = Collections.singletonList(jsonFile.getAbsolutePath());
 
         Configuration configuration = new Configuration(reportOutputDirectory, "API_Testing_Kata");
