@@ -6,10 +6,13 @@ import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestPlan;
 
 import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
 public class ReportGenerationListener implements TestExecutionListener {
+    private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
 
     @Override
     public void testPlanExecutionFinished(TestPlan testPlan) {
@@ -20,8 +23,8 @@ public class ReportGenerationListener implements TestExecutionListener {
             System.out.println("[ReportGenerationListener] No cucumber.json found, skipping report generation");
             return;
         }
-
-        File reportOutputDirectory = new File("target/cucumber-html-reports");
+        String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMAT);
+        File reportOutputDirectory = new File("target/cucumber-html-reports" + timestamp);
         List<String> jsonFiles = Collections.singletonList(jsonFile.getAbsolutePath());
 
         Configuration configuration = new Configuration(reportOutputDirectory, "API_Testing_Kata");
