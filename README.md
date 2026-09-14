@@ -31,6 +31,7 @@ against the documented OpenAPI spec, and automated HTML reporting.
 
 ```
 API_Testing_Kata/
+├── .github/workflows/ci.yml         # GitHub Actions CI pipeline
 ├── pom.xml
 └── src/test/
     ├── java/com/booking/
@@ -105,20 +106,48 @@ Available tags: `@smoke`, `@regression`, `@positive`, `@negative`, `@auth`.
 | `update_booking.feature` | `PUT /booking/{id}` | Positive with auth, negative without auth |
 | `patch_booking.feature` | `PATCH /booking/{id}` | Positive with auth, negative without auth |
 | `delete_booking.feature` | `DELETE /booking/{id}` | Positive with auth, negative without auth |
+| `e2e_booking_lifecycle.feature` | All of the above, chained | Create → Retrieve → Update → Delete, one continuous flow reusing existing steps |
 
 ---
 
 ## Reporting
 
-An HTML dashboard is generated **automatically** after every test run — no
-extra command needed. This works whether you run via IntelliJ's Run button
-or via Maven, thanks to a `TestExecutionListener` registered via
-`ServiceLoader`.
+Reports are generated **automatically** after every test run — no extra
+command needed. This works whether you run via IntelliJ's Run button or via
+Maven, thanks to a `TestExecutionListener` registered via `ServiceLoader`.
+Each run is timestamped, so previous reports are never overwritten.
 
-Open the report at:
+**Multi-page dashboard** (Masterthought — pass/fail charts, per-tag and
+per-scenario breakdowns):
 ```
-target/cucumber-html-reports/overview-features.html
+target/cucumber-html-reports/report-<timestamp>/overview-features.html
 ```
+
+**Single-file report** (Cucumber's built-in formatter — one self-contained
+HTML file, convenient for sharing):
+```
+target/cucumber-html-report-<timestamp>.html
+```
+
+**Raw JSON** (input to the dashboard above, also useful for other tooling):
+```
+target/cucumber-reports/cucumber.json
+```
+
+---
+
+## CI/CD Pipeline
+
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs the full suite
+automatically on every push and pull request to `main`, and publishes the
+HTML and JSON reports as downloadable build artifacts on each run — visible
+from the repository's **Actions** tab without needing to run anything
+locally.
+
+Maven Surefire is configured with `testFailureIgnore=true` so the pipeline
+completes and publishes reports even while scenarios are failing due to the
+documented API discrepancies below, rather than stopping at the first
+failure.
 
 ---
 
